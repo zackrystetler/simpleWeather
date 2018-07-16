@@ -6,6 +6,32 @@ $(document).ready(function() {
 
     const print = (toPrint) => console.log(toPrint);
 
+    const createElem = (elem, content, elemClass) => {
+        const newElem = document.createElement(elem);
+        const newContent = document.createTextNode(content);
+        newElem.appendChild(newContent);
+        if (elemClass) {
+            newElem.className = elemClass;
+        }
+        return newElem;
+    }
+
+    const convertUNIX = (unixTime) => {
+        // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+        var date = new Date(unixTime*1000);
+        // Hours part from the timestamp
+        var hours = date.getHours();
+        // Minutes part from the timestamp
+        var minutes = "0" + date.getMinutes();
+        // Seconds part from the timestamp
+        var seconds = "0" + date.getSeconds();
+
+        // Will display time in 10:30:23 format
+        var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
+        return formattedTime;
+    }
+
     const getWeather = (w) => {
         const weather = {
             description: w.weather[0].description,
@@ -20,7 +46,27 @@ $(document).ready(function() {
             sunset: w.sys.sunset, //unix
             location: w.name + ', ' + w.sys.country
         }
+
         print(weather);
+
+        const $output = $('#output');
+
+        $output.empty();
+
+
+        
+        
+
+        $output.append(createElem('h2', weather.location));
+        $output.append(createElem('p', weather.current, 'current'));
+        $output.append(createElem('p', weather.description, 'description'));
+        $output.append(createElem('p', weather.high, 'high'));
+        $output.append(createElem('p', weather.low, 'low'));
+        $output.append(createElem('p', weather.humidity, 'humidity'));
+        $output.append(createElem('p', weather.windSpeed, 'wind'));
+        $output.append(createElem('p', convertUNIX(weather.sunrise), 'sunrise'));
+        $output.append(createElem('p', convertUNIX(weather.sunset), 'sunset'));
+
     }
 
     const tryAgain = () => {
