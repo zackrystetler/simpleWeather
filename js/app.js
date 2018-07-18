@@ -53,19 +53,14 @@ $(document).ready(function() {
 
         $output.empty();
 
-
-        
-        
-
-        $output.append(createElem('h2', weather.location));
+        $output.append(createElem('h1', weather.location));
         $output.append(createElem('p', weather.current, 'current'));
-        $output.append(createElem('p', weather.description, 'description'));
-        $output.append(createElem('p', weather.high, 'high'));
-        $output.append(createElem('p', weather.low, 'low'));
-        $output.append(createElem('p', weather.humidity, 'humidity'));
-        $output.append(createElem('p', weather.windSpeed, 'wind'));
-        $output.append(createElem('p', convertUNIX(weather.sunrise), 'sunrise'));
-        $output.append(createElem('p', convertUNIX(weather.sunset), 'sunset'));
+        $output.append(createElem('span', weather.description, 'description'));
+        //svg
+        $output.append(createElem('p', weather.humidity));
+        $output.append(createElem('p', weather.windSpeed));
+        $output.append(createElem('p', convertUNIX(weather.sunrise));
+        $output.append(createElem('p', convertUNIX(weather.sunset));
 
     }
 
@@ -78,7 +73,7 @@ $(document).ready(function() {
 
         const apiKey = '477f718056327f5bf85928a1a622d3b0';
         const city = $('#search').val();
-        const units = $("input[name='unit']:checked").val();
+        const units = 'celsius';
 
         $.ajax({
             url: 'http://api.openweathermap.org/data/2.5/weather?q='
