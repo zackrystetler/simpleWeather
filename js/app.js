@@ -4,18 +4,6 @@
 
 $(document).ready(function() {
 
-    const print = (toPrint) => console.log(toPrint);
-
-    const createElem = (elem, content, elemClass) => {
-        const newElem = document.createElement(elem);
-        const newContent = document.createTextNode(content);
-        newElem.appendChild(newContent);
-        if (elemClass) {
-            newElem.className = elemClass;
-        }
-        return newElem;
-    }
-
     const convertUNIX = (unixTime) => {
         // multiplied by 1000 so that the argument is in milliseconds, not seconds.
         var date = new Date(unixTime*1000);
@@ -32,14 +20,11 @@ $(document).ready(function() {
         return formattedTime;
     }
 
-    const getWeather = (w) => {
+    const getWeather = (w, units) => {
         const weather = {
             description: w.weather[0].description,
             icon: w.weather[0].icon,
-            units: $("input[name='unit']:checked").val(),
-            current: w.main.temp,
-            high: w.main.temp_max,
-            low: w.main.temp_min,
+            current: (w.main.temp).toFixed(0),
             humidity: w.main.humidity, //%
             windSpeed: w.wind.speed, //Metric: meter/sec, Imperial: miles/hour
             sunrise: w.sys.sunrise, //unix
@@ -47,20 +32,25 @@ $(document).ready(function() {
             location: w.name + ', ' + w.sys.country
         }
 
-        print(weather);
+        $('#location').text(weather.location);
 
-        const $output = $('#output');
+        if (units === 'metric') {
+            $('#current').text(weather.current + 'ºC');
+        } else {
+            $('#current').text(weather.current + 'ºF');
+        }
+        
+        $('#description').text(weather.description);
+        $('#humidity').text(weather.humidity+'%');
 
-        $output.empty();
+        if (units === 'metric') {
+            $('#windSpeed').text(weather.windSpeed + ' m/s');
+        } else {
+            $('#windSpeed').text(weather.windSpeed + ' mph');
+        }
 
-        $output.append(createElem('h1', weather.location));
-        $output.append(createElem('p', weather.current, 'current'));
-        $output.append(createElem('span', weather.description, 'description'));
-        //svg
-        $output.append(createElem('p', weather.humidity));
-        $output.append(createElem('p', weather.windSpeed));
-        $output.append(createElem('p', convertUNIX(weather.sunrise));
-        $output.append(createElem('p', convertUNIX(weather.sunset));
+        $('#sunrise').text(convertUNIX(weather.sunrise));
+        $('#sunset').text(convertUNIX(weather.sunset));
 
     }
 
@@ -68,22 +58,66 @@ $(document).ready(function() {
         console.log('try again');
     }
 
-    $('#getWeather').click(function() {
-        event.preventDefault();
+    $('#getWeather').click(function(e) {
+        e.preventDefault();
+        queryOpenWeatherAPI($('#search').val());
+    })
 
+    $('#search').keypress(function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            queryOpenWeatherAPI($('#search').val());
+            $('#search').val('');
+        }
+    })
+    
+
+    const queryOpenWeatherAPI = (location) => {
         const apiKey = '477f718056327f5bf85928a1a622d3b0';
-        const city = $('#search').val();
-        const units = 'celsius';
+        let units = '';
+        if ($('#metric').hasClass('active')) {
+            units = 'metric';
+        } else {
+            units = 'imperial';
+        }
 
         $.ajax({
             url: 'http://api.openweathermap.org/data/2.5/weather?q='
-                +city+'&units='+units+'&APPID='+apiKey,
+                +location+'&units='+units+'&APPID='+apiKey,
             type: "GET",
             datatype: "jsonp",
-            success: data => getWeather(data),
+            success: data => getWeather(data, units),
             error: () => tryAgain() 
         })
-    })
+    }
 
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            console.log("Geolocation is not supported by this browser.");
+        }
+    }
+    function showPosition(position) {
+        console.log( "lat=" + position.coords.latitude.toFixed(0) + "&long=" + position.coords.longitude.toFixed(0) ); 
+    }
+
+
+    $('#getLocation').click(function(e) {
+        e.preventDefault();
+        console.log(getLocation());
+    })
     
+
+
+
+
+
+
+
+    queryOpenWeatherAPI('Toronto, CA');
+
+
+
+
 })
